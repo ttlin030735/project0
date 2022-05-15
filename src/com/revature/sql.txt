@@ -1,0 +1,165 @@
+CREATE DATABASE bank;
+
+USE bank;
+
+CREATE TABLE customer(
+Customer_ID INTEGER NOT NULL AUTO_INCREMENT,
+Password VARCHAR (20) NOT NULL,
+Name VARCHAR(40) NOT NULL,
+Email VARCHAR(50) NOT NULL,
+PRIMARY KEY(Customer_ID),
+CONSTRAINT UQ_Customer UNIQUE (Name, Email));
+
+CREATE TABLE account(
+Account_Number INTEGER NOT NULL AUTO_INCREMENT,
+Customer_ID INTEGER NOT NULL,
+Account_Type ENUM ('checking', 'saving'),
+Amount INTEGER NOT NULL,
+Daily_Limit INTEGER NOT NULL,
+Status ENUM ('pending', 'approved', 'declined'),
+PRIMARY KEY(Account_Number),
+FOREIGN KEY (Customer_ID) REFERENCES customer(Customer_ID));
+
+CREATE TABLE employee(
+Employee_ID INTEGER NOT NULL AUTO_INCREMENT,
+Password VARCHAR(20) NOT NULL,
+Name VARCHAR(40) NOT NULL,
+Email VARCHAR(50) NOT NULL,
+PRIMARY KEY(Employee_ID));
+
+CREATE TABLE transaction(
+Transaction_ID INTEGER NOT NULL AUTO_INCREMENT,
+Account_Number INTEGER NOT NULL,
+Transaction ENUM('withdraw', 'deposit') NOT NULL,
+Amount INTEGER NOT NULL,
+PRIMARY KEY(Transaction_ID),
+FOREIGN KEY(Account_Number) REFERENCES account(Account_Number));
+
+CREATE TABLE money_transfer(
+Transfer_ID INTEGER NOT NULL AUTO_INCREMENT,
+Starting_Account INTEGER NOT NULL,
+Type ENUM('send', 'request') ,
+Amount INTEGER NOT NULL,
+Ending_Account INTEGER NOT NULL,
+PRIMARY KEY(Transfer_ID),
+FOREIGN KEY(Starting_Account) REFERENCES account(Account_Number),
+FOREIGN KEY(Ending_Account) REFERENCES account(Account_Number)
+);
+
+CREATE TABLE withdrawal(
+Account_Number INTEGER NOT NULL,
+Amount INTEGER NOT NULL,
+FOREIGN KEY(Account_Number) REFERENCES account(Account_Number));
+
+INSERT INTO customer VALUES
+(1001, 'access', 'Thomas', 't@gmail.com'),
+(1002, 'password', 'Conner', 'c@gmail.com'),
+(1003, 'auto', 'Alejandro', 'a@gmail.com'),
+(1004, 'abc123', 'Angela', 'a@gmail.com');
+
+INSERT INTO account VALUES
+(5001, 1001, 'checking', 5000, 0, 'approved'),
+(5002, 1002, 'checking', 17500, 0, 'approved'),
+(5003, 1003, 'saving', 8000, 1000, 'approved'),
+(5004, 1004, 'checking', 2000, 0, 'approved'),
+(5005, 1001, 'saving', 7000, 3000, 'approved'),
+(5006, 1001, 'checking', 0, 0, 'pending'),
+(5007, 1002, 'saving', 0, 3000, 'pending');
+
+INSERT INTO employee VALUES
+(10001, 'access', 'Castella', 'c@gmail.com'),
+(10002, 'backup', 'Lily', 'l@gmail.com'),
+(10003, 'administration', 'Admin', 'a@gmail.com');
+
+INSERT INTO money_transfer VALUES
+(1, 5001, 'send', 1000, 5004),
+(2, 5003, 'request', 1000, 5002);
+
+INSERT INTO withdrawal VALUES
+(5003, 500);
+
+
+delimiter //
+create procedure database_Reset()
+BEGIN
+
+DROP TABLE customer, account, employee, transaction, money_transfer, withdrawal;
+
+CREATE TABLE customer(
+Customer_ID INTEGER NOT NULL AUTO_INCREMENT,
+Password VARCHAR (20) NOT NULL,
+Name VARCHAR(40) NOT NULL,
+Email VARCHAR(50) NOT NULL,
+PRIMARY KEY(Customer_ID),
+CONSTRAINT UQ_Customer UNIQUE (Name, Email));
+
+CREATE TABLE account(
+Account_Number INTEGER NOT NULL AUTO_INCREMENT,
+Customer_ID INTEGER NOT NULL,
+Account_Type ENUM ('checking', 'saving'),
+Amount INTEGER NOT NULL,
+Daily_Limit INTEGER NOT NULL,
+Status ENUM ('pending', 'approved', 'declined'),
+PRIMARY KEY(Account_Number),
+FOREIGN KEY (Customer_ID) REFERENCES customer(Customer_ID));
+
+CREATE TABLE employee(
+Employee_ID INTEGER NOT NULL AUTO_INCREMENT,
+Password VARCHAR(20) NOT NULL,
+Name VARCHAR(40) NOT NULL,
+Email VARCHAR(50) NOT NULL,
+PRIMARY KEY(Employee_ID));
+
+CREATE TABLE transaction(
+Transaction_ID INTEGER NOT NULL AUTO_INCREMENT,
+Account_Number INTEGER NOT NULL,
+Transaction ENUM('withdraw', 'deposit') NOT NULL,
+Amount INTEGER NOT NULL,
+PRIMARY KEY(Transaction_ID),
+FOREIGN KEY(Account_Number) REFERENCES account(Account_Number));
+
+CREATE TABLE money_transfer(
+Transfer_ID INTEGER NOT NULL AUTO_INCREMENT,
+Starting_Account INTEGER NOT NULL,
+Type ENUM('send', 'request') ,
+Amount INTEGER NOT NULL,
+Ending_Account INTEGER NOT NULL,
+PRIMARY KEY(Transfer_ID),
+FOREIGN KEY(Starting_Account) REFERENCES account(Account_Number),
+FOREIGN KEY(Ending_Account) REFERENCES account(Account_Number)
+);
+
+CREATE TABLE withdrawal(
+Account_Number INTEGER NOT NULL,
+Amount INTEGER NOT NULL,
+FOREIGN KEY(Account_Number) REFERENCES account(Account_Number));
+
+INSERT INTO customer VALUES
+(1001, 'access', 'Thomas', 't@gmail.com'),
+(1002, 'password', 'Conner', 'c@gmail.com'),
+(1003, 'auto', 'Alejandro', 'a@gmail.com'),
+(1004, 'abc123', 'Angela', 'a@gmail.com');
+
+INSERT INTO account VALUES
+(5001, 1001, 'checking', 5000, 0, 'approved'),
+(5002, 1002, 'checking', 17500, 0, 'approved'),
+(5003, 1003, 'saving', 8000, 1000, 'approved'),
+(5004, 1004, 'checking', 2000, 0, 'approved'),
+(5005, 1001, 'saving', 7000, 3000, 'approved'),
+(5006, 1001, 'checking', 0, 0, 'pending'),
+(5007, 1002, 'saving', 0, 3000, 'pending');
+
+INSERT INTO employee VALUES
+(10001, 'access', 'Castella', 'c@gmail.com'),
+(10002, 'backup', 'Lily', 'l@gmail.com'),
+(10003, 'administration', 'Admin', 'a@gmail.com');
+
+INSERT INTO money_transfer VALUES
+(1, 5001, 'send', 1000, 5004),
+(2, 5003, 'request', 1000, 5002);
+
+INSERT INTO withdrawal VALUES
+(5003, 500);
+
+END //
+delimiter ;
