@@ -23,6 +23,6 @@ public class Transaction {
         return "Transaction Number #: " + id +
                 ":\tAccount Number = " + accountNum +
                 ",\ttransaction Type = " + transactionType +
-                ",\tamount =" + amount;
+                ",\tamount = " + amount;
     }
 }

@@ -82,7 +82,7 @@ public class BankDaoImpl implements BankDao{
             int pass;
             if(bypass) pass = 1;
             else pass = 0;
-            String sql = "CALL deposit(?, ?, ?, ?, ?)" ;
+            String sql = "CALL deposit(?, ?, ?, ?, ?)";
             CallableStatement callableStatement = connection.prepareCall(sql);
             callableStatement.setInt(1, customer.getId());
             callableStatement.setInt(2, id);
@@ -98,57 +98,19 @@ public class BankDaoImpl implements BankDao{
     public void withdraw(User customer, int id, int amount, boolean bypass) throws SQLException {
         if(amount < 0) System.out.println("Please enter an amount larger than 0!");
         else {
-            Account account = new Account();
-            account.setAccountNumber(id);
-            String sql;
-
-            if(bypass) sql = "SELECT * FROM account WHERE Account_Number = " + id;
-            else sql = "SELECT * FROM account WHERE Account_Number = " + id + " AND Customer_ID = " + customer.getId();
-
-            ResultSet resultSet = getQuery(sql);
-            if(resultSet.next()){
-                account.setStatus(Status.valueOf(resultSet.getString(6)));
-                if(account.getStatus() == Status.approved){
-                    account.setAmount(resultSet.getInt(4));
-                    account.setAccountType(Account_Type.valueOf(resultSet.getString(3)));
-                    if(account.getAmount() < amount) System.out.println("There is not enough money in your account to withdraw!");
-                    else{
-                        if(account.getAccountType() == Account_Type.saving){
-                            account.setLimit(resultSet.getInt(5));
-                            sql = "SELECT SUM(amount) FROM withdrawal WHERE Account_Number = " + account.getAccountNumber();
-                            resultSet = getQuery(sql);
-                            resultSet.next();
-                            int dailyWithdraw = resultSet.getInt(1);
-                            if(dailyWithdraw + amount > account.getLimit()) System.out.println("You cannot go over your daily limit!");
-                            else {
-                                account.setAmount(account.getAmount() - amount);
-                                sql = "INSERT INTO withdrawal VALUES (?,?)";
-                                PreparedStatement preparedStatement = connection.prepareStatement(sql);
-                                preparedStatement.setInt(1, account.getAccountNumber());
-                                preparedStatement.setInt(2, amount);
-                                if(preparedStatement.executeUpdate() > 0){
-                                    sql = "UPDATE account SET Amount = " + (account.getAmount() - amount) +" WHERE Account_Number = " + account.getAccountNumber();
-                                    if(getUpdate(sql) > 0) {
-                                        inputTransaction(account.getAccountNumber(),amount,Transaction_Type.withdraw);
-                                        System.out.println(amount + " have been withdrawn!");
-                                    }
-                                    else System.out.println("Error have occur please try again.");
-                                }
-                            }
-                        }
-                        else {
-                            sql = "UPDATE account SET Amount = " + (account.getAmount() - amount) +" WHERE Account_Number = " + account.getAccountNumber();
-                            if(getUpdate(sql) > 0) {
-                                inputTransaction(account.getAccountNumber(),amount,Transaction_Type.withdraw);
-                                System.out.println(amount + " have been withdrawn!");
-                            }
-                            else System.out.println("Error have occur please try again.");
-                        }
-                    }//finish withdraw
-                }
-                else System.out.println("Account have not been approved by the employee, if your account is pending please wait for it to be approved.");
-            }
-            else System.out.println("This account does not belong to this customer");
+            //Account account = new Account();
+            int pass;
+            if(bypass) pass = 1;
+            else pass = 0;
+            String sql = "CALL withdraw(?, ?, ?, ?, ?)";
+            CallableStatement callableStatement = connection.prepareCall(sql);
+            callableStatement.setInt(1, customer.getId());
+            callableStatement.setInt(2, id);
+            callableStatement.setInt(3, amount);
+            callableStatement.setInt(4, pass);
+            callableStatement.registerOutParameter(5, Types.VARCHAR);
+            callableStatement.execute();
+            System.out.println(callableStatement.getString(5));
         }
     }
     @Override
