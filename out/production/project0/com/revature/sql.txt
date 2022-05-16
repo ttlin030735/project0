@@ -160,13 +160,30 @@ INSERT INTO money_transfer VALUES
 
 INSERT INTO withdrawal VALUES
 (5003, 500);
-
 END //
 delimiter ;
 
 delimiter //
-create procedure deposit()
+DROP PROCEDURE IF EXISTS deposit;
+CREATE PROCEDURE deposit(IN customer_num INTEGER, IN account_num INTEGER, IN amount1 INTEGER, IN bypass INTEGER, OUT result VARCHAR(16383))
 BEGIN
-
+IF amount1 > 0 THEN
+    IF bypass = 0 THEN
+        IF EXISTS(SELECT * FROM account WHERE Customer_ID = customer_num AND Account_Number = account_num AND Status = 'approved') THEN
+            UPDATE account SET Amount = Amount + amount1 WHERE Account_Number = account_num;
+            INSERT INTO transaction(Account_Number, Transaction, Amount) VALUES (account_num, 'deposit', amount1);
+            SET result = CONCAT(amount1, ' have been deposit into ', account_num, '!');
+        ELSE SET result = 'Account is not your, does not exist, or is not approved by an employee!';
+        END IF;
+    ELSE
+        IF EXISTS(SELECT * FROM account WHERE Account_Number = account_num AND Status = 'approved') THEN
+            UPDATE account SET Amount = Amount + amount1 WHERE Account_Number = account_num;
+            INSERT INTO transaction(Account_Number, Transaction, Amount) VALUES (account_num, 'deposit', amount1);
+            SET result = CONCAT(amount1, ' have been deposit into ', account_num, '!');
+        ELSE SET result = 'Account does not exist or is not approved!';
+        END IF;
+    END IF;
+ELSE SET result = 'Please enter an amount greater than 0!';
+END IF;
 END //
 delimiter ;
