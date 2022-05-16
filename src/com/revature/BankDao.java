@@ -18,7 +18,7 @@ public interface BankDao{
     List<Account> getAccount() throws SQLException;
     List<Account> getCustomerAccount(int customerID) throws SQLException;
     List<Transaction> viewTransaction() throws SQLException;
-    List<MoneyTransfer> viewMoneyTransferList() throws SQLException;
+    List<MoneyTransfer> viewMoneyTransferList(User user, int id) throws SQLException;
     void approveTransfer(User user, int transferID, boolean accept) throws SQLException;
     void inputTransaction(int accountID, int amount, Transaction_Type isWithdrawal) throws SQLException;
     void clearList(String list) throws SQLException;

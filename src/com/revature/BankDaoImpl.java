@@ -244,17 +244,21 @@ public class BankDaoImpl implements BankDao{
         return transactionList;
     }
     @Override
-    public List<MoneyTransfer> viewMoneyTransferList() throws SQLException {
+    public List<MoneyTransfer> viewMoneyTransferList(User user, int id) throws SQLException {
+        String sql = "SELECT * FROM account WHERE Customer_ID = " + user.getId() + " AND Account_Number = " + id;
         List<MoneyTransfer> transferList = new ArrayList<>();
-        String sql = "SELECT * FROM money_transfer";
         ResultSet resultSet = getQuery(sql);
         while(resultSet.next()){
-            int transferID = resultSet.getInt(1);
-            int accountID = resultSet.getInt(2);
-            Money_Transfer moneyTransfer = Money_Transfer.valueOf(resultSet.getString(3));
-            int amount = resultSet.getInt(4);
-            int otherID = resultSet.getInt(5);
-            transferList.add(new MoneyTransfer(transferID, accountID, moneyTransfer, amount, otherID));
+            sql = "SELECT * FROM money_transfer WHERE Starting_Account = " + id + " OR Ending_Account = " + id;
+            resultSet = getQuery(sql);
+            while(resultSet.next()){
+                int transferID = resultSet.getInt(1);
+                int accountID = resultSet.getInt(2);
+                Money_Transfer moneyTransfer = Money_Transfer.valueOf(resultSet.getString(3));
+                int amount = resultSet.getInt(4);
+                int otherID = resultSet.getInt(5);
+                transferList.add(new MoneyTransfer(transferID, accountID, moneyTransfer, amount, otherID));
+            }
         }
         return transferList;
     }
@@ -273,26 +277,34 @@ public class BankDaoImpl implements BankDao{
         String sql = "SELECT * FROM money_transfer WHERE Transfer_ID = " + transferID;
         ResultSet resultSet = getQuery(sql);
         if(resultSet.next()){
-            if(accept){
-                int receiverID;
-                int senderID;
-                if(Money_Transfer.valueOf(resultSet.getString(3)) == Money_Transfer.request){
-                    receiverID = resultSet.getInt(2);
-                    senderID = resultSet.getInt(5);
+            int otherParty = resultSet.getInt(2);
+            int yourAccount = resultSet.getInt(5);
+            Money_Transfer transferType = Money_Transfer.valueOf(resultSet.getString(3));
+            int amount = resultSet.getInt(4);
+            sql = "SELECT * FROM account WHERE Customer_ID = " + user.getId() + " AND Account_Number = " + yourAccount;
+            resultSet = getQuery(sql);
+            if(resultSet.next()){
+                if(accept){
+                    int receiverID;
+                    int senderID;
+                    if(transferType == Money_Transfer.request){
+                        receiverID = otherParty;
+                        senderID = yourAccount;
+                    }
+                    else {
+                        receiverID = yourAccount;
+                        senderID = otherParty;
+                    }
+                    deposit(user, receiverID, amount, true);
+                    withdraw(user, senderID, amount, true);
+                    System.out.println("Money transfer accepted!");
                 }
-                else {
-                    receiverID = resultSet.getInt(5);
-                    senderID = resultSet.getInt(2);
-                }
-                int amount = resultSet.getInt(4);
-                deposit(user, receiverID, amount, true);
-                withdraw(user, senderID, amount, true);
-                System.out.println("Money transfer accepted!");
-            }
-            else System.out.println("Money transfer decline!");
+                else System.out.println("Money transfer decline!");
 
-            sql = "DELETE FROM money_transfer WHERE Transfer_ID = " + transferID;
-            if(getUpdate(sql) > 0) System.out.println("Resolving money transfer request.");
+                sql = "DELETE FROM money_transfer WHERE Transfer_ID = " + transferID;
+                if(getUpdate(sql) > 0) System.out.println("Resolving money transfer request.");
+            }
+            else System.out.println("You are not the target of a money transfer!");
         }
         else System.out.println("Money transfer request not found!");
 
