@@ -163,3 +163,10 @@ INSERT INTO withdrawal VALUES
 
 END //
 delimiter ;
+
+delimiter //
+create procedure deposit()
+BEGIN
+
+END //
+delimiter ;
