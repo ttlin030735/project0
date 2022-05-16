@@ -46,7 +46,9 @@ public class Main {
                                     System.out.println("3)Deposit money into an account");
                                     System.out.println("4)Withdraw money from an account");
                                     System.out.println("5)Transfer money");
-                                    System.out.println("6)Log out");
+                                    System.out.println("6)Viewing pending money transfer you are in");
+                                    System.out.println("7)Accepting/declining money transfer if you are second party");
+                                    System.out.println("8)Log out");
 
                                     input = getNumber();
                                     switch(input) {
@@ -86,7 +88,22 @@ public class Main {
                                             Money_Transfer moneyTransfer = getTransferType();
                                             dao.transferMoney(customer, account1, account2, amount, moneyTransfer);
                                         }
-                                        case 6 -> {
+                                        case 6 -> {//view money transfer you are involved in
+                                            System.out.println("Viewing money transfer list!");
+                                            System.out.print("Which account do you want to see pending money transfer for: ");
+                                            int account = getNumber();
+                                            List<MoneyTransfer> moneyTransferList = dao.viewMoneyTransferList(customer, account);
+                                            if(moneyTransferList.size() != 0) moneyTransferList.forEach(System.out::println);
+                                            else System.out.println("There is no money transfer associated with this account or this account does not belong to you!");
+                                        }
+                                        case 7 -> {//approve money transfer
+                                            System.out.print("Please enter the money transfer ID: ");
+                                            int id = getNumber();
+                                            System.out.print("Are you approving this transfer: " );
+                                            boolean accept = getBoolean();
+                                            dao.approveTransfer(customer, id, accept);
+                                        }
+                                        case 8 -> {
                                             customerLogin = false;
                                             System.out.println("Logging out of employee");
                                         }
@@ -117,11 +134,10 @@ public class Main {
                                     System.out.println("3)List all account");
                                     System.out.println("4)List all account own by a customer");
                                     System.out.println("5)View transaction");
-                                    System.out.println("6)View pending money transfer");
-                                    System.out.println("7)Approve new account");
-                                    System.out.println("8)Approve money transfer");
-                                    System.out.println("9)Other");
-                                    System.out.println("10)Log out");
+                                    System.out.println("6)Approving new account");
+                                    System.out.println("7)Resetting daily limit");
+                                    System.out.println("8)Delete transaction history");
+                                    System.out.println("9)Log out");
 
                                     input = getNumber();
                                     switch(input) {
@@ -155,13 +171,7 @@ public class Main {
                                             if(transactions.size() != 0) transactions.forEach(System.out::println);
                                             else System.out.println("There is no transaction!");
                                         }
-                                        case 6 -> {//viewing pending money transfer from account to account
-                                            System.out.println("Viewing money transfer list!");
-                                            List<MoneyTransfer> moneyTransferList = dao.viewMoneyTransferList();
-                                            if(moneyTransferList.size() != 0) moneyTransferList.forEach(System.out::println);
-                                            else System.out.println("No many money is being transferred between accounts!");
-                                        }
-                                        case 7 -> {// approve new account
+                                        case 6 -> {// approve new account
                                             Account account = new Account();
                                             System.out.print("Enter account number you trying to approve/deny: ");
                                             int id = getNumber();
@@ -171,33 +181,15 @@ public class Main {
                                             account.setStatus(approve);
                                             dao.accountApproval(account);
                                         }
-                                        case 8 -> {// approve money transfer
-                                            System.out.print("Please enter the money transfer ID: ");
-                                            int id = getNumber();
-                                            System.out.print("Are you approving this transfer: " );
-                                            boolean accept = getBoolean();
-                                            dao.approveTransfer(employee, id, accept);
+                                        case 7 -> {//Resetting daily limit
+                                            System.out.println("Resetting daily limit");
+                                            dao.clearList("Withdrawal");
                                         }
-                                        case 9 -> {//reset transaction list
-                                            System.out.println("What do you want to do?");
-                                            System.out.println("1)Clear all customer's saving account limit.");
-                                            System.out.println("2)Clear transaction history.");
-                                            System.out.println("3)Reset the database!");
-                                            System.out.println("Anything else will put you back to the previous screen!");
-                                            input = getNumber();
-                                            switch (input){
-                                                case 1 -> {
-                                                    System.out.println("Resetting daily limit");
-                                                    dao.clearList("Withdrawal");
-                                                }
-                                                case 2 -> {
-                                                    System.out.println("Deleting transaction history!");
-                                                    dao.clearList("Transaction");
-                                                }
-                                                default -> System.out.println("Invalid input returning to previous page!");
-                                            }
+                                        case 8 -> {//Deleting transaction history
+                                            System.out.println("Deleting transaction history!");
+                                            dao.clearList("Transaction");
                                         }
-                                        case 10 -> {
+                                        case 9 -> {
                                             employeeLogin = false;
                                             System.out.println("Logging out of employee");
                                         }
