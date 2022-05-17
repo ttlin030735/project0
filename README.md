@@ -4,11 +4,11 @@ The Bank app is a console-based application that simulates banking operations. A
 
 Requirements
 
-Functionality should reflect the below user stories.
-Data is stored in a database.
-A custom stored procedure is called to perform some portion of the functionality.
-Data Access is performed through the use of JDBC in a data layer consisting of Data Access Objects.
-All input is received using the java.util.Scanner class.
+1) Functionality should reflect the below user stories.
+2) Data is stored in a database.
+3) A custom stored procedure is called to perform some portion of the functionality.
+4) Data Access is performed through the use of JDBC in a data layer consisting of Data Access Objects.
+5) All input is received using the java.util.Scanner class.
 
 - As a user:
   - Login
