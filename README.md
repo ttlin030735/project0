@@ -3,7 +3,7 @@
 The Bank app is a console-based application that simulates banking operations. A customer can apply for an account, view their balance, and make withdrawals and deposits. An employee can approve or deny accounts and view account balances for their customers.
 
 Before you run the code:
-1) Run the MySQL command in the SQL.txt file and change the password to match your in the Config.properties.
+Run the MySQL command in the SQL.txt file and change the password to match your in the Config.properties.
 
 Requirements
 1) Functionality should reflect the below user stories.
