@@ -179,6 +179,7 @@ END IF;
 END //
 delimiter ;
 
+
 delimiter //
 DROP PROCEDURE IF EXISTS withdraw;
 CREATE PROCEDURE withdraw(IN customer_num INTEGER, IN account_num INTEGER, IN amount1 INTEGER, IN bypass INTEGER, OUT result VARCHAR(16383))
@@ -189,20 +190,22 @@ IF amount1 > 0 THEN
         IF @amt - amount1 >= 0 THEN
             IF EXISTS(SELECT * FROM account WHERE Account_Number = account_num AND Account_Type = 'saving') THEN
                 SELECT SUM(Amount) INTO @previousWithdraw FROM withdrawal WHERE Account_Number = account_num;
+                IF @previousWithdraw IS NULL THEN SET @previousWithdraw = 0;
+                END IF;
                 SELECT Daily_Limit INTO @dailyLimit FROM Account WHERE Account_Number = account_num;
                 IF @previousWithdraw + amount1 < @dailyLimit THEN
                     UPDATE account SET Amount = Amount - amount1 WHERE Account_Number = account_num;
                     INSERT INTO transaction(Account_Number, Transaction, Amount) VALUES (account_num, 'withdraw', amount1);
                     INSERT INTO withdrawal VALUES (account_num, amount);
                     SET result = CONCAT(amount1, ' have been withdraw from ', account_num, '!');
-                ELSE SET result = 'This account cannot withdraw pass its daily limit!';
+                ELSE SET result = 'You can not withdraw more from this account!';
                 END IF;
             ELSE
                 UPDATE account SET Amount = Amount - amount1 WHERE Account_Number = account_num;
                 INSERT INTO transaction(Account_Number, Transaction, Amount) VALUES (account_num, 'withdraw', amount1);
                 SET result = CONCAT(amount1, ' have been withdraw from ', account_num, '!');
             END IF;
-        ELSE SET result = CONCAT(@amt);
+        ELSE SET result = 'You cannot withdraw more than your have.';
         END IF;
     ELSE SET result = 'Account is not your, does not exist, or is not approved by an employee!';
     END IF;
@@ -210,4 +213,3 @@ ELSE SET result = 'Please enter an amount greater than 0!';
 END IF;
 END //
 delimiter ;
-
